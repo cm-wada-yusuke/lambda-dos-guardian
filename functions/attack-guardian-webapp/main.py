@@ -27,7 +27,7 @@ s3 = boto3.client('s3')
 sns = boto3.client('sns')
 waf = boto3.client('waf')
 
-## 集計結果からブラックリスト判定の際に見逃すIPアドレスポリシー
+## white list
 ip_address_ignore_policy = re.compile('^(?:10|127|172\.(?:1[6-9]|2[0-9]|3[01])|192\.168)\..*')
 
 def handle(event, context):
@@ -45,10 +45,10 @@ def handle(event, context):
         # create black list
         ip_address_list = to_ip_address_list(content.decode('utf-8'))
         black_list = to_ip_black_list(ip_address_list)
-        print(u'ブラックリストは次のようになりました：', black_list)
+        print(u'black list：', black_list)
 
         if len(black_list):
-            print(u'しきい値 {threshold} を超えたアクセスを検知しました、ブロックします'.format(threshold = black_list_threshold_count))
+            print(u'block threshold: {threshold} '.format(threshold = black_list_threshold_count))
 
             # create ip set for waf
             update_ip_set=map(to_ip_set_for_waf, black_list)
@@ -66,7 +66,7 @@ def handle(event, context):
             else:
                 pass
         else:
-            print(u'ブラックリストが空のため、何もしません')
+            print(u'nothing to do.')
             pass
         print(u'----------------------finish:{key_name}------------------------------'.format(key_name = key))
         return black_list
@@ -81,19 +81,18 @@ def to_ip_address_list(file_string):
         try:
             ip=ast.literal_eval(r)['host']
             if ('-' in ip) or ip == '':
-                # ipアドレス形式でないので、無視
                 pass
             else:
                 result_list.append(ip)
         except Exception as e:
-            print(u'処理できない行がありましたが、無視します。このログが大量に出る場合、ファイル形式を確認してください。',r ,e)
+            print(u'ignore: ',r ,e)
     return result_list
 
 # from: IP address list -> to: black list
 def to_ip_black_list(ip_list):
     black_list=[]
     counter=Counter(ip_list)
-    print(u'集計結果は以下のようになりました')
+    print(u'aggregated:')
     for ip, cnt in counter.most_common():
         print(ip, cnt)
         if cnt > black_list_threshold_count and not ip_address_ignore_policy.search(ip):
@@ -129,7 +128,7 @@ def waf_block(update_ip_set):
         ChangeToken=token['ChangeToken'],
         Updates=update_ip_set
     )
-    print(u'WAF設定：', waf.get_ip_set(IPSetId=waf_ip_set_id))
+    print(u'WAF:', waf.get_ip_set(IPSetId=waf_ip_set_id))
     return
 
 def sns_notification(sns_settings):
