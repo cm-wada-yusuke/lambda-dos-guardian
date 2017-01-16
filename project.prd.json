@@ -1,0 +1,5 @@
+{
+  "name": "lambda-dos-guardian",
+  "description": "Lambda project on production",
+  "nameTemplate": "prd-{{.Project.Name}}-{{.Function.Name}}"
+}

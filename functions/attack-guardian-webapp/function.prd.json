@@ -1,0 +1,14 @@
+{
+  "description": "Aggregate IP address, and block malicious access (using WAF).",
+  "memory": 1024,
+  "timeout": 60,
+  "role": "Set role ARN allowed WAF and SNS access.",
+  "environment": {
+    "ENVIRONMENT": "prd",
+    "WAF_IP_SET_ID": "Set WAF blacklist IP Resource ID.",
+    "NOTIFICATION_SNS_TOPIC": "Set SNS topic ARN.",
+    "BLACK_LIST_THRESHOLD_COUNT": "500",
+    "SLACK_INCOMMING_HOOK_URL": "Set Slack URL that incomming hook.",
+    "SLACK_NOTIFICATION_ENABLED": "1"
+  }
+}

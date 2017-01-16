@@ -1,0 +1,5 @@
+{
+  "name": "lambda-dos-guardian",
+  "description": "Lambda project",
+  "nameTemplate": "{{.Project.Name}}-{{.Project.Environment}}-{{.Function.Name}}"
+}
